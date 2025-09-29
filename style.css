@@ -42,7 +42,6 @@ main {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: opacity 0.5s ease-in-out;
 }
 
 #loading-overlay {
@@ -81,10 +80,45 @@ main {
 
 #controls {
     display: flex;
-    justify-content: center;
+    flex-direction: column; /* Changed to column for better layout around input */
     gap: 15px;
     margin-bottom: 30px;
+    align-items: center;
 }
+
+#generation-input-group {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#alteration-input {
+    width: 100%;
+    padding: 10px;
+    font-size: 1em;
+    border: 2px solid #88eeff;
+    border-radius: 5px;
+    background-color: #111122;
+    color: #ccddff;
+    resize: vertical;
+    min-height: 40px;
+    box-sizing: border-box;
+}
+
+#alteration-input:focus {
+    outline: none;
+    border-color: #ff00ff;
+    box-shadow: 0 0 8px rgba(255, 0, 255, 0.7);
+}
+
+#action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
 
 button {
     padding: 10px 20px;
@@ -162,3 +196,21 @@ button.secondary:hover {
     width: 100%;
 }
 
+.current-scene-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 5px 15px;
+    font-size: 0.9em;
+    color: white;
+    max-height: 20%;
+    overflow: auto;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.current-scene-info p {
+    margin: 3px 0;
+}
