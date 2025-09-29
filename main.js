@@ -117,6 +117,30 @@ function setGenerating(status) {
     }
 }
 
+async function urlToDataUrl(url) {
+    if (!url) return null;
+    try {
+        // Fetch the asset/image URL
+        const response = await fetch(url);
+        // Ensure response is OK
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        
+        const blob = await response.blob();
+        
+        // Convert Blob to Data URL
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    } catch (e) {
+        console.error("Failed to convert URL to Data URL:", e);
+        // Return null if fetching or conversion fails
+        return null; 
+    }
+}
+
 async function generateNextScene() {
     if (isGenerating) return;
 
@@ -126,13 +150,35 @@ async function generateNextScene() {
         const nextId = scenes.length > 0 ? scenes[scenes.length - 1].id + 1 : 1;
         
         const prompt = BASE_PROMPT; 
+        
+        let imageInputs = [];
+        const lastScene = scenes[scenes.length - 1];
 
+        if (lastScene) {
+            console.log(`Using previous scene (ID: ${lastScene.id}) as image input for continuation.`);
+            // Convert the previous scene's image URL to a data URL
+            const dataUrl = await urlToDataUrl(lastScene.imageUrl);
+            if (dataUrl) {
+                imageInputs.push({ url: dataUrl });
+            } else {
+                console.warn("Could not get data URL for previous scene. Generating from text prompt only.");
+            }
+        }
+        
         console.log(`Generating scene ${nextId} with prompt: ${prompt}`);
 
-        const result = await websim.imageGen({
+        const generationParams = {
             prompt: prompt,
             aspect_ratio: "16:9",
-        });
+        };
+        
+        if (imageInputs.length > 0) {
+            generationParams.image_inputs = imageInputs;
+            // Optionally, we might want to adjust the prompt slightly when using image input 
+            // to emphasize transformation, but for continuity, the base prompt works well too.
+        }
+
+        const result = await websim.imageGen(generationParams);
 
         const newScene = {
             id: nextId,
@@ -181,4 +227,3 @@ function init() {
 document.addEventListener('DOMContentLoaded', () => {
     init();
 });
-
